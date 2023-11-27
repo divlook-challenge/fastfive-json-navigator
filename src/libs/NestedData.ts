@@ -17,6 +17,10 @@ export type NestedJson = {
     [key: NestedDataLabel]: NestedJsonValue
 }
 
+export type NestedDataBookmark = {
+    [key: NestedData['path']]: NestedData['label']
+}
+
 class NestedData {
     id = ++NestedData.lastID
     childMap = new Map<NestedDataLabel, NestedData>()

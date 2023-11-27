@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import NestedData, { NestedJson } from '~/src/libs/NestedData'
+import NestedData, {
+    NestedDataBookmark,
+    NestedJson,
+} from '~/src/libs/NestedData'
 import mockData from '~/src/mocks/example1.json'
 
 const useNestedData = (defaultValue: NestedJson = mockData) => {
@@ -7,9 +10,7 @@ const useNestedData = (defaultValue: NestedJson = mockData) => {
         NestedData.parseData(JSON.stringify(defaultValue)),
     )
 
-    const [bookmark, setBookmark] = useState<{
-        [key: NestedData['path']]: NestedData['label']
-    }>({})
+    const [bookmark, setBookmark] = useState<NestedDataBookmark>({})
 
     return {
         rootData,

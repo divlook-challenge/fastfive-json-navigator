@@ -2,15 +2,13 @@ import classNames from 'classnames'
 import { useMemo } from 'react'
 import DataLabel from '~/src/components/DataLabel'
 import useViewportSize from '~/src/hooks/useViewportSize'
-import NestedData from '~/src/libs/NestedData'
+import NestedData, { NestedDataBookmark } from '~/src/libs/NestedData'
 
 export type Props = {
     data: NestedData
     border?: boolean
-    bookmark?: {
-        [key: NestedData['path']]: NestedData['label']
-    }
-    updateBookmark?: (bookmark: Required<Props>['bookmark']) => void
+    bookmark?: NestedDataBookmark
+    updateBookmark?: (bookmark: NestedDataBookmark) => void
 }
 const NestedDataView = (props: Props) => {
     const { isMobileSize } = useViewportSize()
