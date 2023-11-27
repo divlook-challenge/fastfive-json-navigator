@@ -20,6 +20,7 @@ const useViewportSize = () => {
         return () => {
             window.removeEventListener('resize', throttleUpdateViewportSize)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -28,21 +29,24 @@ const useViewportSize = () => {
 
     function throttleUpdateViewportSize() {
         if (Date.now() - viewportSizeLastUpdatedTime.current >= 300) {
-            setViewportSize({
-                width: window.innerWidth,
-                height: window.innerHeight,
-            })
+            updateViewportSize()
             return
         }
 
         clearTimeout(timerId.current)
 
         timerId.current = setTimeout(() => {
+            updateViewportSize()
+        }, 300)
+    }
+
+    function updateViewportSize() {
+        requestAnimationFrame(() => {
             setViewportSize({
                 width: window.innerWidth,
                 height: window.innerHeight,
             })
-        }, 300)
+        })
     }
 
     return {
