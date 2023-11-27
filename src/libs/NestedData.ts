@@ -1,10 +1,20 @@
 export type NestedDataLabel = string | number
 
-// TODO: 예제에 boolean, null도 있어서 추가 필요
-export type NestedDataValue = NestedDataLabel | NestedJson
+export type JsonPrimitive = NestedDataLabel | boolean | null
+
+export type NestedJsonValue =
+    | JsonPrimitive
+    | JsonPrimitive[]
+    | NestedJson
+    | NestedJson[]
+
+export type NestedJsonValueWithoutPrimitive = Exclude<
+    NestedJsonValue,
+    JsonPrimitive
+>
 
 export type NestedJson = {
-    [key: string | number]: NestedDataValue
+    [key: NestedDataLabel]: NestedJsonValue
 }
 
 class NestedData {
@@ -26,8 +36,9 @@ class NestedData {
         return `${prefix}${this.label}`
     }
 
-    createChild(label: NestedDataLabel) {
-        const child = this.childMap.get(label) || new NestedData(label, this)
+    createChild(label: JsonPrimitive) {
+        const key = `${label}`
+        const child = this.childMap.get(key) || new NestedData(key, this)
         this.childMap.set(child.label, child)
         return child
     }
@@ -71,15 +82,14 @@ class NestedData {
         })
     }
 
-    static parseAndInsertChild(parent: NestedData, json: NestedJson) {
+    static parseAndInsertChild(parent: NestedData, json: NestedJsonValue) {
         if (!NestedData.isNestedJson(json)) return
 
-        const keys = Array.isArray(json)
-            ? json.map((_, index) => index)
-            : Object.keys(json)
+        const isArray = Array.isArray(json)
+        const keys = isArray ? json.map((_, index) => index) : Object.keys(json)
 
         keys.forEach((key) => {
-            const value = json[key]
+            const value = isArray ? json[key as number] : json[key]
 
             if (NestedData.isNestedJson(value)) {
                 const child = parent.createChild(key)
@@ -94,8 +104,10 @@ class NestedData {
         })
     }
 
-    static isNestedJson(json: NestedDataValue): json is NestedJson {
-        return !!json && typeof json === 'object'
+    static isNestedJson(
+        json: NestedJsonValue,
+    ): json is NestedJsonValueWithoutPrimitive {
+        return !!json && (typeof json === 'object' || Array.isArray(json))
     }
 }
 
