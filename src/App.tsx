@@ -1,17 +1,9 @@
-import { useState } from 'react'
 import DataFromFile from '~/src/components/DataFromFile'
 import NestedDataView from '~/src/components/NestedDataView'
-import NestedData from '~/src/libs/NestedData'
-import mockData from '~/src/mocks/data.json'
+import useNestedData from '~/src/hooks/useNestedData'
 
 const App = () => {
-    const [rootData, setRootData] = useState<NestedData | null>(
-        NestedData.parseData(JSON.stringify(mockData)),
-    )
-
-    const [bookmark, setBookmark] = useState<{
-        [key: NestedData['path']]: NestedData['label']
-    }>({})
+    const nestedData = useNestedData()
 
     return (
         <>
@@ -21,21 +13,21 @@ const App = () => {
                     <div className="ml-auto">
                         <DataFromFile
                             onParseSuccess={(data) => {
-                                setRootData(data)
+                                nestedData.setRootData(data)
                             }}
                         />
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-auto bg-slate-300">
-                    {rootData && (
+                    {nestedData.rootData && (
                         <div className="min-w-min p-2">
                             <NestedDataView
-                                key={rootData.label}
-                                data={rootData}
+                                key={nestedData.rootData.id}
+                                data={nestedData.rootData}
                                 border
-                                bookmark={bookmark}
-                                updateBookmark={setBookmark}
+                                bookmark={nestedData.bookmark}
+                                updateBookmark={nestedData.setBookmark}
                             />
                         </div>
                     )}
