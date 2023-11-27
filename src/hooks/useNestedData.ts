@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import NestedData from '~/src/libs/NestedData'
+import NestedData, { NestedJson } from '~/src/libs/NestedData'
 import mockData from '~/src/mocks/data.json'
 
 const useNestedData = (
-    defaultValue: Record<string, NestedData['label']> = mockData,
+    defaultValue: NestedJson = mockData,
 ) => {
     const [rootData, setRootData] = useState<NestedData | null>(
         NestedData.parseData(JSON.stringify(defaultValue)),

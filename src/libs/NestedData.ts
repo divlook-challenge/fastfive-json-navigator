@@ -1,5 +1,11 @@
 export type NestedDataLabel = string | number
 
+export type NestedDataValue = NestedDataLabel | NestedJson
+
+export type NestedJson = {
+    [key: string]: NestedDataValue
+}
+
 class NestedData {
     id = ++NestedData.lastID
     childMap = new Map<NestedDataLabel, NestedData>()
@@ -36,7 +42,7 @@ class NestedData {
     static parseData(text: string) {
         const root = new NestedData('$')
 
-        let json: Record<string, NestedDataLabel> | null = null
+        let json: NestedJson | null = null
 
         try {
             json = JSON.parse(text)
@@ -45,15 +51,7 @@ class NestedData {
                 return root
             }
 
-            Object.keys(json).map((key) => {
-                const value = json![key]
-
-                const last = key.split('.').reduce((top, label) => {
-                    return top.createChild(label)
-                }, root)
-
-                last.createChild(value)
-            })
+            NestedData.parseAndInsertChild(root, json)
 
             return root
         } catch {
@@ -70,6 +68,29 @@ class NestedData {
             fileReader.onerror = (error) => reject(error)
             fileReader.readAsText(file)
         })
+    }
+
+    static parseAndInsertChild(parent: NestedData, json: NestedJson) {
+        if (!NestedData.isNestedJson(json)) return
+
+        Object.keys(json).map((key) => {
+            const value = json[key]
+
+            if (NestedData.isNestedJson(value)) {
+                const child = parent.childMap.get(key) || new NestedData(key, parent)
+                NestedData.parseAndInsertChild(child, value)
+            } else {
+                const last = `${value}`.split('.').reduce((top, label) => {
+                    return top.createChild(label)
+                }, parent)
+
+                last.createChild(value)
+            }
+        })
+    }
+
+    static isNestedJson(json: NestedJson[string]): json is NestedJson {
+        return !!json && typeof json === 'object' && !Array.isArray(json)
     }
 }
 
