@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import DataLabel from '~/src/components/DataLabel'
 import useViewportSize from '~/src/hooks/useViewportSize'
 import NestedData, { NestedDataBookmark } from '~/src/libs/NestedData'
@@ -11,6 +11,10 @@ export type Props = {
     updateBookmark?: (bookmark: NestedDataBookmark) => void
 }
 const NestedDataView = (props: Props) => {
+    const el = useRef<HTMLDivElement>(null)
+
+    const [contentVisibility, setContentVisibility] = useState(false)
+
     const { isMobileSize } = useViewportSize()
 
     const selectedChild = useMemo(() => {
@@ -18,6 +22,22 @@ const NestedDataView = (props: Props) => {
 
         return props.data.childMap.get(selectedChildLabel!) ?? null
     }, [props.bookmark, props.data.childMap, props.data.path])
+
+    useEffect(() => {
+        const handler = new IntersectionObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                setContentVisibility(mutation.isIntersecting)
+            })
+        })
+
+        if (el.current) {
+            handler.observe(el.current)
+        }
+
+        return () => {
+            handler.disconnect()
+        }
+    }, [])
 
     function selectChild(child: NestedData) {
         props.updateBookmark?.({
@@ -29,12 +49,16 @@ const NestedDataView = (props: Props) => {
     return (
         <div className="flex flex-row">
             <div
+                ref={el}
                 className={classNames([
                     isMobileSize ? 'flex-1' : 'min-w-[200px]',
                     {
                         border: !!props.border,
                     },
                 ])}
+                style={{
+                    contentVisibility: contentVisibility ? 'auto' : 'hidden',
+                }}
             >
                 {props.data.childs.map((child, key) => {
                     const isLastChild = props.data.childs.length - 1 === key
