@@ -20,7 +20,7 @@ const App = () => {
                 </div>
 
                 <div className="flex-1 overflow-auto bg-slate-300">
-                    {nestedData.rootData && (
+                    {nestedData.rootData?.childs.length ? (
                         <div className="min-w-min p-2">
                             <NestedDataView
                                 key={nestedData.rootData.id}
@@ -30,6 +30,8 @@ const App = () => {
                                 updateBookmark={nestedData.setBookmark}
                             />
                         </div>
+                    ) : (
+                        <div className="p-2">데이터 없음</div>
                     )}
                 </div>
             </div>
