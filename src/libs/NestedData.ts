@@ -6,19 +6,17 @@ class NestedData {
 
     constructor(
         public label: NestedDataLabel,
-        parent?: NestedData,
-    ) {
-        const paths = [`${label}`]
-
-        if (parent?.path) {
-            paths.unshift(parent.path)
-        }
-
-        this.path = paths.join('.')
-    }
+        public parent: NestedData | null = null,
+    ) {}
 
     get childs() {
         return Array.from(this.childMap).map(([, val]) => val)
+    }
+
+    get path(): string {
+        const prefix = this.parent?.path ? `${this.parent.path}.` : ''
+
+        return `${prefix}${this.label}`
     }
 
     createChild(label: NestedDataLabel) {
@@ -34,9 +32,7 @@ class NestedData {
     }
 
     static parseData(text: string) {
-        const root = new NestedData(Date.now())
-
-        root.path = '$'
+        const root = new NestedData('$')
 
         let json: Record<string, NestedDataLabel> | null = null
 
