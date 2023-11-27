@@ -1,7 +1,7 @@
 export type NestedDataLabel = string | number
 
 class NestedData {
-    path: string
+    id = ++NestedData.lastID
     childMap = new Map<NestedDataLabel, NestedData>()
 
     constructor(
@@ -30,6 +30,8 @@ class NestedData {
 
         return this.childMap.has(data.label)
     }
+
+    static lastID = 0
 
     static parseData(text: string) {
         const root = new NestedData('$')
