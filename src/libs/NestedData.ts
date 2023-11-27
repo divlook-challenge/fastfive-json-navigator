@@ -1,9 +1,10 @@
 export type NestedDataLabel = string | number
 
+// TODO: 예제에 boolean, null도 있어서 추가 필요
 export type NestedDataValue = NestedDataLabel | NestedJson
 
 export type NestedJson = {
-    [key: string]: NestedDataValue
+    [key: string | number]: NestedDataValue
 }
 
 class NestedData {
@@ -47,7 +48,7 @@ class NestedData {
         try {
             json = JSON.parse(text)
 
-            if (!json || typeof json !== 'object' || Array.isArray(json)) {
+            if (!json || !NestedData.isNestedJson(json)) {
                 return root
             }
 
@@ -73,14 +74,18 @@ class NestedData {
     static parseAndInsertChild(parent: NestedData, json: NestedJson) {
         if (!NestedData.isNestedJson(json)) return
 
-        Object.keys(json).map((key) => {
+        const keys = Array.isArray(json)
+            ? json.map((_, index) => index)
+            : Object.keys(json)
+
+        keys.forEach((key) => {
             const value = json[key]
 
             if (NestedData.isNestedJson(value)) {
-                const child = parent.childMap.get(key) || new NestedData(key, parent)
+                const child = parent.createChild(key)
                 NestedData.parseAndInsertChild(child, value)
             } else {
-                const last = `${value}`.split('.').reduce((top, label) => {
+                const last = `${key}`.split('.').reduce((top, label) => {
                     return top.createChild(label)
                 }, parent)
 
@@ -89,8 +94,8 @@ class NestedData {
         })
     }
 
-    static isNestedJson(json: NestedJson[string]): json is NestedJson {
-        return !!json && typeof json === 'object' && !Array.isArray(json)
+    static isNestedJson(json: NestedDataValue): json is NestedJson {
+        return !!json && typeof json === 'object'
     }
 }
 

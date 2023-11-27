@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import NestedData, { NestedJson } from '~/src/libs/NestedData'
-import mockData from '~/src/mocks/data.json'
+import mockData from '~/src/mocks/example1.json'
 
-const useNestedData = (
-    defaultValue: NestedJson = mockData,
-) => {
+const useNestedData = (defaultValue: NestedJson = mockData) => {
     const [rootData, setRootData] = useState<NestedData | null>(
         NestedData.parseData(JSON.stringify(defaultValue)),
     )
